@@ -34,6 +34,7 @@ export function HapticTab(props: HapticTabProps) {
     <Pressable
       {...props}
       onPress={handlePress}
+      role="button"
       style={({ pressed }) => [
         styles.tab,
         { 

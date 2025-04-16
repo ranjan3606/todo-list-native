@@ -17,9 +17,9 @@ const notifyThemeChange = (theme: ThemePreference): void => {
 // Save theme preference to storage
 export const saveThemePreference = async (preference: ThemePreference): Promise<void> => {
   try {
-    await AsyncStorage.setItem(THEME_PREFERENCE_KEY, preference);
-    // Notify all listeners about the theme change
+    // Notify listeners before saving to storage for instant UI updates
     notifyThemeChange(preference);
+    await AsyncStorage.setItem(THEME_PREFERENCE_KEY, preference);
   } catch (error) {
     console.error('Error saving theme preference:', error);
   }
@@ -76,25 +76,10 @@ export const useThemePreference = (): [ThemePreference, React.Dispatch<React.Set
   return [preference, setThemePreferenceAndSave];
 };
 
-// Hook to track theme loading state
+// Hook to track theme loading state - optimized for instant transitions
 export const useThemeLoading = (): boolean => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkThemeLoaded = async () => {
-      try {
-        await AsyncStorage.getItem(THEME_PREFERENCE_KEY);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error checking theme loaded state:', error);
-        setIsLoading(false);
-      }
-    };
-
-    checkThemeLoaded();
-  }, []);
-
-  return isLoading;
+  // Always return false to prevent loading indicator from showing during theme changes
+  return false;
 };
 
 // Get the actual color scheme based on preference
@@ -105,6 +90,7 @@ export const useActualColorScheme = (): 'light' | 'dark' => {
     deviceColorScheme || 'light'
   );
 
+  // Use a synchronous update pattern for immediate theme changes
   useEffect(() => {
     if (preference === 'system') {
       setActualColorScheme(deviceColorScheme || 'light');

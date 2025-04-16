@@ -8,4 +8,8 @@ export interface Todo {
   recurring?: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly'; // Recurrence frequency
   originalDueDate?: string; // To track the start date of a recurring series
   isRecurringInstance?: boolean; // To differentiate original vs generated tasks
+  reminder?: {
+    enabled: boolean;
+    time: string; // Format: "HH:MM" in 24-hour format
+  };
 }

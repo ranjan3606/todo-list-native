@@ -8,21 +8,23 @@ import {
   Modal, 
   TouchableOpacity, 
   ScrollView,
-  Alert
+  Alert,
+  Switch
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import { FontAwesome } from '@expo/vector-icons';
 import { Todo } from '@/types/todo';
 import { PREDEFINED_TAGS, ALL_TAG_NAMES } from '@/constants/Tags';
 import { addTodo, updateTodo } from '@/services/storage';
+import { showToast } from '../utils/toastUtils';
 
 // DateSelector Component
-interface DateSelectorProps {
+export interface DateSelectorProps {
   value: string;
   onChange: (date: string) => void;
 }
 
-const DateSelector = ({ value, onChange }: DateSelectorProps) => {
+export const DateSelector = ({ value, onChange }: DateSelectorProps) => {
   const [showCalendar, setShowCalendar] = useState(false);
 
   const selectPreset = (preset: string) => {
@@ -147,6 +149,243 @@ const DateSelector = ({ value, onChange }: DateSelectorProps) => {
   );
 };
 
+// ReminderSelector Component
+export interface ReminderSelectorProps {
+  enabled: boolean;
+  onToggle: (enabled: boolean) => void;
+  reminderTime: string;
+  onTimeChange: (time: string) => void;
+}
+
+export const ReminderSelector = ({ enabled, onToggle, reminderTime, onTimeChange }: ReminderSelectorProps) => {
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [tempSelectedTime, setTempSelectedTime] = useState(reminderTime);
+  
+  const handleToggle = (value: boolean) => {
+    onToggle(value);
+  };
+
+  const selectPresetTime = (hours: number) => {
+    const time = `${hours.toString().padStart(2, '0')}:00`;
+    onTimeChange(time);
+  };
+
+  const handleCustomTime = () => {
+    setTempSelectedTime(reminderTime);
+    setShowTimePicker(true);
+  };
+
+  const handleTimeSelect = (hours: number, minutes: number) => {
+    const time = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    setTempSelectedTime(time);
+  };
+  
+  const handleConfirmTime = () => {
+    onTimeChange(tempSelectedTime);
+    setShowTimePicker(false);
+  };
+  
+  const handleCancelTime = () => {
+    setShowTimePicker(false);
+  };
+
+  return (
+    <View style={styles.reminderContainer}>
+      <View style={styles.reminderHeaderRow}>
+        <Text style={styles.sectionLabel}>Reminder Notification:</Text>
+        <Switch
+          value={enabled}
+          onValueChange={handleToggle}
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={enabled ? "#f5dd4b" : "#f4f3f4"}
+        />
+      </View>
+      
+      {enabled && (
+        <>
+          <View style={styles.timeButtonRow}>
+            <TouchableOpacity 
+              style={[styles.timeButton, reminderTime === "09:00" ? styles.selectedTime : null]} 
+              onPress={() => selectPresetTime(9)}
+            >
+              <Text>9:00 AM</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.timeButton, reminderTime === "12:00" ? styles.selectedTime : null]} 
+              onPress={() => selectPresetTime(12)}
+            >
+              <Text>12:00 PM</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.timeButton, reminderTime === "18:00" ? styles.selectedTime : null]} 
+              onPress={() => selectPresetTime(18)}
+            >
+              <Text>6:00 PM</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.timeButtonRow}>
+            <TouchableOpacity 
+              style={[styles.timeButton, !["09:00", "12:00", "18:00"].includes(reminderTime) ? styles.selectedTime : null]} 
+              onPress={handleCustomTime}
+            >
+              <Text>Custom Time</Text>
+              <FontAwesome name="clock-o" size={14} color="#555" style={{ marginLeft: 5 }} />
+            </TouchableOpacity>
+          </View>
+          
+          {reminderTime && (
+            <Text style={styles.selectedTimeText}>
+              You'll be reminded at {
+                parseInt(reminderTime.split(':')[0]) > 12 
+                  ? `${parseInt(reminderTime.split(':')[0]) - 12}:${reminderTime.split(':')[1]} PM`
+                  : parseInt(reminderTime.split(':')[0]) === 12
+                    ? `12:${reminderTime.split(':')[1]} PM`
+                    : parseInt(reminderTime.split(':')[0]) === 0
+                      ? `12:${reminderTime.split(':')[1]} AM`
+                      : `${reminderTime} AM`
+              }
+            </Text>
+          )}
+          
+          <Text style={styles.reminderNote}>
+            Reminders will be sent before the due date
+          </Text>
+          
+          <Text style={styles.reminderNote}>
+            For tasks due today, you'll receive escalating reminders at 1 hour, 30 minutes, and 10 minutes before the deadline
+          </Text>
+
+          {/* Custom Time Picker Modal */}
+          <Modal
+            visible={showTimePicker}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={handleCancelTime}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.calendarContent}>
+                <Text style={styles.modalTitle}>Select Custom Time</Text>
+                
+                <View style={styles.timePickerGrid}>
+                  <View style={styles.timePickerHeader}>
+                    <Text style={styles.timePickerHeaderText}>Hour</Text>
+                    <Text style={styles.timePickerHeaderText}>Minute</Text>
+                    <Text style={styles.timePickerHeaderText}>AM/PM</Text>
+                  </View>
+                  
+                  <View style={styles.timePickerSelectors}>
+                    {/* Hours */}
+                    <ScrollView style={styles.timePickerColumnWrapper} showsVerticalScrollIndicator={false}>
+                      {Array.from({length: 12}, (_, i) => (
+                        <TouchableOpacity 
+                          key={`hour-${i+1}`}
+                          style={[
+                            styles.timePickerOption,
+                            (parseInt(tempSelectedTime.split(':')[0]) % 12 || 12) === i+1 ? styles.timeOptionSelected : null
+                          ]}
+                          onPress={() => {
+                            const isPm = parseInt(tempSelectedTime.split(':')[0]) >= 12;
+                            const newHour = isPm ? (i+1 === 12 ? 12 : i+1+12) : (i+1 === 12 ? 0 : i+1);
+                            handleTimeSelect(newHour, parseInt(tempSelectedTime.split(':')[1]));
+                          }}
+                        >
+                          <Text style={styles.timePickerOptionText}>{(i+1).toString().padStart(2, '0')}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                    
+                    {/* Minutes */}
+                    <ScrollView style={styles.timePickerColumnWrapper} showsVerticalScrollIndicator={false}>
+                      {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((minute) => (
+                        <TouchableOpacity 
+                          key={`minute-${minute}`}
+                          style={[
+                            styles.timePickerOption,
+                            parseInt(tempSelectedTime.split(':')[1]) === minute ? styles.timeOptionSelected : null
+                          ]}
+                          onPress={() => handleTimeSelect(parseInt(tempSelectedTime.split(':')[0]), minute)}
+                        >
+                          <Text style={styles.timePickerOptionText}>{minute.toString().padStart(2, '0')}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                    
+                    {/* AM/PM */}
+                    <View style={styles.timePickerColumnWrapper}>
+                      <TouchableOpacity 
+                        style={[
+                          styles.timePickerOption, 
+                          styles.ampmItem,
+                          parseInt(tempSelectedTime.split(':')[0]) < 12 ? styles.timeOptionSelected : null
+                        ]}
+                        onPress={() => {
+                          const currentHour = parseInt(tempSelectedTime.split(':')[0]);
+                          if (currentHour >= 12) {
+                            // Convert PM to AM
+                            handleTimeSelect(currentHour - 12 === 0 ? 0 : currentHour - 12, parseInt(tempSelectedTime.split(':')[1]));
+                          }
+                        }}
+                      >
+                        <Text style={styles.timePickerOptionText}>AM</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        style={[
+                          styles.timePickerOption, 
+                          styles.ampmItem,
+                          parseInt(tempSelectedTime.split(':')[0]) >= 12 ? styles.timeOptionSelected : null
+                        ]}
+                        onPress={() => {
+                          const currentHour = parseInt(tempSelectedTime.split(':')[0]);
+                          if (currentHour < 12) {
+                            // Convert AM to PM
+                            handleTimeSelect(currentHour + 12 === 24 ? 12 : currentHour + 12, parseInt(tempSelectedTime.split(':')[1]));
+                          }
+                        }}
+                      >
+                        <Text style={styles.timePickerOptionText}>PM</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  
+                  <View style={styles.selectedTimePreview}>
+                    <Text style={styles.selectedTimePreviewText}>
+                      Selected Time: {
+                        parseInt(tempSelectedTime.split(':')[0]) > 12 
+                          ? `${parseInt(tempSelectedTime.split(':')[0]) - 12}:${tempSelectedTime.split(':')[1]} PM`
+                          : parseInt(tempSelectedTime.split(':')[0]) === 12
+                            ? `12:${tempSelectedTime.split(':')[1]} PM`
+                            : parseInt(tempSelectedTime.split(':')[0]) === 0
+                              ? `12:${tempSelectedTime.split(':')[1]} AM`
+                              : `${parseInt(tempSelectedTime.split(':')[0])}:${tempSelectedTime.split(':')[1]} AM`
+                      }
+                    </Text>
+                  </View>
+                </View>
+                
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity 
+                    style={styles.modalButton} 
+                    onPress={handleCancelTime}
+                  >
+                    <Text style={styles.modalButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.modalButton, styles.modalButtonConfirm]} 
+                    onPress={handleConfirmTime}
+                  >
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextConfirm]}>Confirm</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        </>
+      )}
+    </View>
+  );
+};
+
 // Main TaskForm component
 interface TaskFormProps {
   visible: boolean;
@@ -167,6 +406,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  // New reminder state
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderTime, setReminderTime] = useState('09:00');
 
   // Reset form and set initial values if editing
   useEffect(() => {
@@ -178,6 +420,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({
         setDueDate(initialTask.dueDate);
         setTags(initialTask.tags || []);
         setRecurring(initialTask.recurring || 'none');
+        // Set reminder values if they exist in the task
+        if (initialTask.reminder) {
+          setReminderEnabled(true);
+          setReminderTime(initialTask.reminder.time || '09:00');
+        } else {
+          setReminderEnabled(false);
+          setReminderTime('09:00');
+        }
         setShowAdvanced(true);
         setIsEditing(true);
       } else {
@@ -211,6 +461,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     setDueDate('');
     setTags([]);
     setRecurring('none');
+    setReminderEnabled(false);
+    setReminderTime('09:00');
     setShowAdvanced(false);
     setIsEditing(false);
   };
@@ -251,6 +503,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
         recurring: recurring !== 'none' ? recurring : undefined,
         originalDueDate: initialTask?.originalDueDate || (recurring !== 'none' ? effectiveDueDate : undefined),
         isRecurringInstance: initialTask?.isRecurringInstance || false,
+        // Add reminder data if enabled
+        reminder: reminderEnabled ? {
+          enabled: true,
+          time: reminderTime
+        } : undefined
       };
       
       let success = false;
@@ -265,10 +522,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       
       if (success) {
         handleClose();
-        Alert.alert(
-          "Success", 
-          isEditing ? "Task updated successfully" : "New task added successfully"
-        );
+        // Replace Alert with Toast
+        showToast(isEditing ? "Task updated successfully" : "New task added successfully", 'info');
       }
     } catch (error) {
       console.error("Error saving task:", error);
@@ -291,7 +546,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             <Text style={styles.formTitle}>
               {isEditing ? 'Edit Task' : 'Add New Task'}
             </Text>
-            <TouchableOpacity onPress={handleClose}>
+            <TouchableOpacity testID="close-button" onPress={handleClose}>
               <FontAwesome name="times" size={24} color="#666" />
             </TouchableOpacity>
           </View>
@@ -299,12 +554,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           <ScrollView style={styles.formScrollView}>
             <View style={styles.form}>
               <TextInput
+                testID="task-name-input"
                 style={styles.input}
                 placeholder="What needs to be done? (#tag)"
                 value={name}
                 onChangeText={setName}
               />
               <TextInput
+                testID="task-description-input"
                 style={styles.input}
                 placeholder="Add details about this task (optional)"
                 value={description}
@@ -315,8 +572,17 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               
               <DateSelector value={dueDate} onChange={setDueDate} />
               
+              {/* Reminder Selector - placed before advanced options */}
+              <ReminderSelector 
+                enabled={reminderEnabled}
+                onToggle={setReminderEnabled}
+                reminderTime={reminderTime}
+                onTimeChange={setReminderTime}
+              />
+              
               {/* Advanced Settings Accordion */}
               <TouchableOpacity
+                testID="advanced-options-toggle"
                 style={styles.accordionHeader}
                 onPress={() => setShowAdvanced(!showAdvanced)}
               >
@@ -332,6 +598,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                     {ALL_TAG_NAMES.map(tag => (
                       <TouchableOpacity
                         key={tag}
+                        testID="tag-button"
                         style={[
                           styles.tagButton,
                           tags.includes(tag) && styles.tagButtonSelected
@@ -350,7 +617,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                   {dueDate && (
                      <React.Fragment>
                        <Text style={styles.sectionLabel}>Recurring:</Text>
-                       <View style={styles.recurringContainer}>
+                       <View testID="recurring-options" style={styles.recurringContainer}>
                          {(['none', 'daily', 'weekly', 'monthly', 'yearly'] as const).map(freq => (
                            <TouchableOpacity
                              key={freq}
@@ -379,6 +646,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                   color="#999" 
                 />
                 <Button 
+                  testID="save-button"
                   title={isEditing ? (isSaving ? "Updating..." : "Update Task") : (isSaving ? "Adding..." : "Add Task")} 
                   onPress={handleSave}
                   disabled={isSaving} 
@@ -445,8 +713,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
-    width: '90%',
-    maxHeight: '80%',
+    width: '95%',
+    maxHeight: '100%',
   },
   modalTitle: {
     fontSize: 18,
@@ -548,8 +816,8 @@ const styles = StyleSheet.create({
   formModal: {
     backgroundColor: 'white',
     borderRadius: 10,
-    width: '90%',
-    maxHeight: '80%',
+    width: '95%',
+    maxHeight: '100%',
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -578,5 +846,158 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
+  },
+  reminderContainer: {
+    marginBottom: 15,
+  },
+  reminderHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  timeButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  timeButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  selectedTime: {
+    backgroundColor: '#e6f7ff',
+    borderColor: '#1890ff',
+  },
+  selectedTimeText: {
+    marginTop: 5,
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  reminderNote: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+  },
+  timePickerContainer: {
+    maxHeight: 200,
+  },
+  timePickerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  timePickerColumnWrapper: {
+    flex: 1,
+    marginHorizontal: 5,
+    height: 180,
+  },
+  timePickerLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  timePickerOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    marginBottom: 8,
+    alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+  },
+  timeOptionSelected: {
+    backgroundColor: '#e6f7ff',
+    borderColor: '#1890ff',
+  },
+  timePickerOptionText: {
+    fontSize: 16,
+  },
+  timePickerGrid: {
+    marginVertical: 15,
+  },
+  timePickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 10,
+    paddingHorizontal: 5,
+  },
+  timePickerHeaderText: {
+    flex: 1,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  timePickerSelectors: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    height: 180,
+  },
+  timePickerColumn: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  timePickerItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    marginBottom: 5,
+    alignItems: 'center',
+  },
+  timePickerItemSelected: {
+    backgroundColor: '#e6f7ff',
+    borderColor: '#1890ff',
+  },
+  timePickerText: {
+    fontSize: 16,
+  },
+  ampmItem: {
+    paddingVertical: 20,
+    marginVertical: 10,
+  },
+  selectedTimePreview: {
+    marginTop: 15,
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  selectedTimePreviewText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  modalButton: {
+    padding: 12,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginHorizontal: 10,
+    minWidth: 100,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  modalButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#1890ff',
+    borderColor: '#1890ff',
+  },
+  modalButtonTextConfirm: {
+    color: '#fff',
   },
 });

@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
-import { Animated, StyleSheet, Text, View, I18nManager } from 'react-native';
-import { RectButton, Swipeable } from 'react-native-gesture-handler';
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import { Animated, StyleSheet, Text, View, I18nManager, Pressable } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { FontAwesome } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { useActualColorScheme } from '@/services/theme';
@@ -14,17 +14,30 @@ interface SwipeableRowProps {
   isCompleted?: boolean;
 }
 
-export const SwipeableRow: React.FC<SwipeableRowProps> = ({ 
+// Define a ref interface for exposing methods
+export interface SwipeableRowHandle {
+  close: () => void;
+}
+
+// Use forwardRef to properly handle refs
+export const SwipeableRow = forwardRef<SwipeableRowHandle, SwipeableRowProps>(({ 
   children, 
   onDelete, 
   onComplete,
   onSnooze,
   isCompleted = false
-}) => {
+}, ref) => {
   const swipeableRef = useRef<Swipeable>(null);
   const colorScheme = useActualColorScheme();
   const { t } = useTranslation();
   
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    close: () => {
+      swipeableRef.current?.close();
+    }
+  }));
+
   const renderRightAction = (
     text: string,
     color: string,
@@ -45,12 +58,16 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = ({
 
     return (
       <Animated.View style={{ flex: 1, transform: [{ translateX: trans }] }}>
-        <RectButton
-          style={[styles.rightAction, { backgroundColor: color }]}
+        <Pressable
+          style={({ pressed }) => [
+            styles.rightAction, 
+            { backgroundColor: color },
+            pressed && { opacity: 0.7 }
+          ]}
           onPress={pressHandler}>
           <FontAwesome name={icon} size={20} color="white" style={styles.actionIcon} />
           <Text style={styles.actionText}>{text}</Text>
-        </RectButton>
+        </Pressable>
       </Animated.View>
     );
   };
@@ -81,12 +98,16 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = ({
 
     return (
       <Animated.View style={{ flex: 1, transform: [{ translateX: trans }] }}>
-        <RectButton
-          style={[styles.leftAction, { backgroundColor: color }]}
+        <Pressable
+          style={({ pressed }) => [
+            styles.leftAction, 
+            { backgroundColor: color },
+            pressed && { opacity: 0.7 }
+          ]}
           onPress={pressHandler}>
           <FontAwesome name={icon} size={20} color="white" style={styles.actionIcon} />
           <Text style={styles.actionText}>{text}</Text>
-        </RectButton>
+        </Pressable>
       </Animated.View>
     );
   };
@@ -147,7 +168,7 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = ({
       </Swipeable>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

@@ -1,0 +1,201 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ThemeSelector renders correctly (snapshot) 1`] = `
+<View
+  style={
+    {
+      "flexDirection": "row",
+      "justifyContent": "space-between",
+    }
+  }
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#f0f0f0",
+        "borderRadius": 8,
+        "flex": 1,
+        "marginHorizontal": 4,
+        "opacity": 1,
+        "padding": 12,
+      }
+    }
+  >
+    <View
+      color="#000"
+      name="sun-o"
+      size={24}
+      testID="icon-sun-o"
+    />
+    <Text
+      style={
+        [
+          {
+            "fontWeight": "500",
+            "marginTop": 8,
+          },
+          {
+            "color": "#000",
+          },
+        ]
+      }
+    >
+      Light
+    </Text>
+  </View>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#f0f0f0",
+        "borderRadius": 8,
+        "flex": 1,
+        "marginHorizontal": 4,
+        "opacity": 1,
+        "padding": 12,
+      }
+    }
+  >
+    <View
+      color="#000"
+      name="moon-o"
+      size={24}
+      testID="icon-moon-o"
+    />
+    <Text
+      style={
+        [
+          {
+            "fontWeight": "500",
+            "marginTop": 8,
+          },
+          {
+            "color": "#000",
+          },
+        ]
+      }
+    >
+      Dark
+    </Text>
+  </View>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#f0f0f0",
+        "borderColor": "#007aff",
+        "borderRadius": 8,
+        "borderWidth": 2,
+        "flex": 1,
+        "marginHorizontal": 4,
+        "opacity": 1,
+        "padding": 12,
+      }
+    }
+  >
+    <View
+      color="#007aff"
+      name="mobile"
+      size={24}
+      testID="icon-mobile"
+    />
+    <Text
+      style={
+        [
+          {
+            "fontWeight": "500",
+            "marginTop": 8,
+          },
+          {
+            "color": "#000",
+          },
+        ]
+      }
+    >
+      System
+    </Text>
+  </View>
+</View>
+`;

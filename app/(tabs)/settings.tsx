@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { 
   View, 
   Text, 
@@ -21,6 +21,9 @@ import { useTags } from '@/hooks/useTags';
 import { useTranslation } from '@/i18n';
 import { useStableRefresh } from '@/hooks/useStableRefresh';
 import { PageLayout } from '@/components/PageLayout';
+
+// Create a memoized version of TagItem
+const MemoizedTagItem = memo(TagItem);
 
 export default function SettingsScreen() {
   const colorScheme = useActualColorScheme();
@@ -97,6 +100,19 @@ export default function SettingsScreen() {
     await saveThemePreference(theme);
   };
   
+  // Memoize the renderItem function for the tags list
+  const renderTagItem = useCallback(({ item: tagName }: { item: string }) => (
+    <MemoizedTagItem
+      tagName={tagName}
+      keywords={tags[tagName]}
+      isActive={activeTag === tagName}
+      colorScheme={colorScheme}
+      animValue={slideAnim[tagName]}
+      onPress={() => handleTagPress(tagName)}
+      onEdit={() => openEditTagModal(tagName)}
+    />
+  ), [tags, activeTag, colorScheme, slideAnim, handleTagPress]);
+
   return (
     <PageLayout title={t('settings.title')}>
       <ScrollView style={styles.scrollView}>
@@ -192,16 +208,12 @@ export default function SettingsScreen() {
               data={Object.keys(tags)}
               keyExtractor={(item) => item}
               scrollEnabled={false}
-              renderItem={({ item: tagName }) => (
-                <TagItem
-                  tagName={tagName}
-                  keywords={tags[tagName]}
-                  isActive={activeTag === tagName}
-                  colorScheme={colorScheme}
-                  animValue={slideAnim[tagName]}
-                  onPress={() => handleTagPress(tagName)}
-                  onEdit={() => openEditTagModal(tagName)}
-                />
+              renderItem={renderTagItem}
+              initialNumToRender={5}
+              maxToRenderPerBatch={5}
+              removeClippedSubviews={true}
+              getItemLayout={(data, index) => (
+                {length: 70, offset: 70 * index, index}
               )}
             />
           ) : (

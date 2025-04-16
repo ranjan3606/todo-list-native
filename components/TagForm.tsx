@@ -140,7 +140,7 @@ export const TagForm = ({
               style={[styles.modalButton, styles.cancelButton]} 
               onPress={onCancel}
             >
-              <Text style={styles.buttonText}>{t('common.cancel')}</Text>
+              <Text style={styles.buttonText}>{t('cancel')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -149,7 +149,7 @@ export const TagForm = ({
               disabled={isSaving}
             >
               <Text style={styles.buttonText}>
-                {isSaving ? t('common.saving') : (mode === 'add' ? t('common.save') : t('common.update'))}
+                {isSaving ? t('saving') : (mode === 'add' ? t('save') : t('update'))}
               </Text>
             </TouchableOpacity>
           </View>
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    width: '90%',
+    width: '95%',
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',

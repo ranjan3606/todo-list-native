@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Modal, SafeAreaView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { Todo } from '@/types/todo';
-import { SwipeableRow } from './SwipeableRow';
+import { SwipeableRow, SwipeableRowHandle } from './SwipeableRow';
 import { formatDisplayDate, isToday, isTomorrow, isDueSoon, getNextDueDate } from '@/utils/dateUtils';
 import { deleteTodo, toggleTodoCompletion, snoozeTodo, getSnoozeDuration, addTodo } from '@/services/storage';
 import { useTranslation } from '@/i18n';
+import { showToast } from '@/utils/toastUtils';
 
 interface TaskCardProps {
   item: Todo;
@@ -14,7 +15,7 @@ interface TaskCardProps {
   onEdit?: (task: Todo) => void;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ 
+export const TaskCard: React.FC<TaskCardProps> = memo(({ 
   item, 
   colorScheme,
   onEdit
@@ -25,8 +26,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const isDueToday = isToday(item.dueDate);
   const isDueTomorrow = isTomorrow(item.dueDate);
   const isDue = isDueSoon(item.dueDate);
+  // Add a ref for the SwipeableRow
+  const swipeableRowRef = useRef<SwipeableRowHandle>(null);
 
-  const handleLongPress = () => {
+  const handleLongPress = useCallback(() => {
     if (onEdit) {
       Alert.alert(
         t('task.edit'),
@@ -38,9 +41,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         ]
       );
     }
-  };
+  }, [onEdit, item, t]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (isProcessing) return;
     
     setIsProcessing(true);
@@ -48,6 +51,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       const success = await deleteTodo(item.id);
       if (!success) {
         Alert.alert(t('common.error'), t('taskForm.error'));
+      } else {
+        // Show toast notification when task is deleted successfully with direct message format
+        showToast(`"${item.name}" deleted successfully`, 'success');
       }
       setShowDetails(false);
     } catch (error) {
@@ -55,14 +61,23 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [isProcessing, item.id, item.name, t]);
 
-  const handleComplete = async () => {
+  const handleComplete = useCallback(async () => {
     if (isProcessing) return;
     
     setIsProcessing(true);
     try {
       const result = await toggleTodoCompletion(item.id);
+      
+      // Show toast notification when task is completed or uncompleted
+      if (result.success && result.newTodo) {
+        if (result.newTodo.completed) {
+          showToast(`"${item.name}" marked as complete`, 'success');
+        } else {
+          showToast(`"${item.name}" marked as incomplete`, 'info');
+        }
+      }
       
       // Handle recurring task completion
       if (result.success && result.newTodo && result.newTodo.completed && 
@@ -91,9 +106,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [isProcessing, item.id, item.name, t]);
 
-  const handleSnooze = async () => {
+  const handleSnooze = useCallback(async () => {
     if (isProcessing) return;
     
     setIsProcessing(true);
@@ -120,7 +135,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [isProcessing, item.id, t]);
 
   // Task detail popup component
   const TaskDetailPopup = () => (
@@ -209,6 +224,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 setShowDetails(false);
                 if (onEdit) onEdit(item);
               }}
+              testID="edit-task-button"
             >
               <FontAwesome name="edit" size={18} color="#fff" />
               <Text style={styles.modalButtonText}>{t('common.edit')}</Text>
@@ -218,6 +234,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               style={[styles.modalButton, { backgroundColor: item.completed ? Colors.primary : Colors.success }]}
               onPress={handleComplete}
               disabled={isProcessing}
+              testID="modal-complete-button"
             >
               <FontAwesome name={item.completed ? "undo" : "check"} size={18} color="#fff" />
               <Text style={styles.modalButtonText}>
@@ -229,6 +246,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               style={[styles.modalButton, { backgroundColor: Colors.warning }]}
               onPress={handleSnooze}
               disabled={isProcessing}
+              testID="snooze-button"
             >
               <FontAwesome name="clock-o" size={18} color="#fff" />
               <Text style={styles.modalButtonText}>{t('task.snooze')}</Text>
@@ -238,6 +256,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               style={[styles.modalButton, { backgroundColor: Colors.danger }]}
               onPress={handleDelete}
               disabled={isProcessing}
+              testID="delete-button"
             >
               <FontAwesome name="trash" size={18} color="#fff" />
               <Text style={styles.modalButtonText}>{t('common.delete')}</Text>
@@ -260,9 +279,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       ]}
       onLongPress={handleLongPress}
       delayLongPress={500}
-      onPress={() => setShowDetails(true)} // Changed to open detail popup instead of toggling completion
+      onPress={() => setShowDetails(true)}
+      testID="task-card" 
     >
       <View style={styles.todoContent}>
+        {/* Priority Indicator for Today's Tasks */}
+        {isDueToday && !item.completed && (
+          <View style={styles.priorityIndicator}>
+            <Text style={styles.priorityText}>!</Text>
+          </View>
+        )}
+
         {/* Completion Icon */}
         <TouchableOpacity 
           onPress={(e) => {
@@ -270,6 +297,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             handleComplete();
           }} 
           style={styles.checkIcon}
+          testID="completion-checkbox"
         >
           <FontAwesome
             name={item.completed ? "check-circle" : "circle-o"}
@@ -283,7 +311,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           <Text style={[
             styles.todoName, 
             { color: Colors[colorScheme].text },
-            item.completed && styles.completedText
+            item.completed && styles.completedText,
+            isDueToday && !item.completed && styles.todayTaskText
           ]}>
             {item.name}
           </Text>
@@ -314,6 +343,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </Text>
             ) : null}
             
+            {/* Reminder badge */}
+            {item.reminder && item.reminder.enabled && !item.completed && (
+              <View style={styles.reminderBadge} testID="reminder-badge">
+                <FontAwesome name="bell" size={12} color="#fff" />
+                <Text style={styles.reminderText}>{item.reminder.time}</Text>
+              </View>
+            )}
+            
             {item.isRecurringInstance && item.originalDueDate && (
               <Text style={[
                 styles.todoDate, 
@@ -333,7 +370,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 styles.recurringText, 
                 { color: Colors[colorScheme].lightText },
                 item.completed && styles.completedText
-              ]}>
+              ]}
+              testID="recurring-indicator">
                 <FontAwesome name="repeat" size={12} color={Colors[colorScheme].lightText} /> 
                 {t(`taskForm.${item.recurring}`)}
               </Text>
@@ -342,7 +380,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           
           {/* Display Tags */}
           {item.tags && item.tags.length > 0 && (
-            <View style={styles.itemTagContainer}>
+            <View style={styles.itemTagContainer} testID="tags-container">
               {item.tags.map(tag => (
                 <Text key={tag} style={[
                   styles.itemTag,
@@ -366,6 +404,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   return (
     <>
       <SwipeableRow 
+        ref={swipeableRowRef}
         onDelete={handleDelete}
         onComplete={handleComplete}
         onSnooze={handleSnooze}
@@ -378,7 +417,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       <TaskDetailPopup />
     </>
   );
-};
+});
 
 const styles = StyleSheet.create({
   todoItem: {
@@ -461,7 +500,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    width: '90%',
+    width: '95%',
     maxWidth: 400,
     borderRadius: 10,
     padding: 20,
@@ -515,5 +554,35 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     marginLeft: 8,
+  },
+  priorityIndicator: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: Colors.danger,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  priorityText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  todayTaskText: {
+    fontWeight: 'bold',
+  },
+  reminderBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.warning,
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    marginLeft: 10,
+  },
+  reminderText: {
+    color: '#fff',
+    marginLeft: 5,
+    fontSize: 12,
   },
 });

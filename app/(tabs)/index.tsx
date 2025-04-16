@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   Text, 
   View, 
   TouchableOpacity, 
   StyleSheet, 
-  ScrollView,
-  Alert
+  ScrollView
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Todo } from '@/types/todo';
-import { useFocusEffect } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { useActualColorScheme } from '@/services/theme';
 import { categorizeTasks } from '@/utils/dateUtils';
@@ -62,21 +60,40 @@ export default function HomeScreen() {
         styles.sectionHeader, 
         activeSection === section && styles.activeSectionHeader,
         { backgroundColor: activeSection === section ? 
-            `${Colors[colorScheme].tint}15` : 'transparent' }
+            `${Colors[colorScheme].tint}15` : 'transparent' },
+        // Add red background for today's tasks when there are pending tasks
+        section === 'today' && count > 0 && styles.todayHighPriority
       ]}
       onPress={() => setActiveSection(section)}
     >
-      <Text style={[
-        styles.sectionTitle, 
-        { color: Colors[colorScheme].text },
-        activeSection === section && { color: Colors[colorScheme].tint }
-      ]}>
-        {title} ({count})
-      </Text>
+      <View style={styles.sectionTitleContainer}>
+        <Text style={[
+          styles.sectionTitle, 
+          { color: Colors[colorScheme].text },
+          activeSection === section && { color: Colors[colorScheme].tint },
+          // Make text white when today section has high priority background
+          section === 'today' && count > 0 && styles.todayHighPriorityText
+        ]}>
+          {title}
+        </Text>
+        
+        {/* Add notification badge for pending tasks */}
+        {section === 'today' && count > 0 && (
+          <View style={styles.notificationBadge}>
+            <Text style={styles.notificationText}>
+              {count}
+            </Text>
+          </View>
+        )}
+      </View>
       <FontAwesome 
         name={activeSection === section ? "chevron-down" : "chevron-right"} 
         size={16} 
-        color={activeSection === section ? Colors[colorScheme].tint : Colors[colorScheme].text} 
+        color={
+          section === 'today' && count > 0 ? 
+            '#fff' : 
+            (activeSection === section ? Colors[colorScheme].tint : Colors[colorScheme].text)
+        } 
       />
     </TouchableOpacity>
   );
@@ -230,5 +247,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  notificationBadge: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginLeft: 8,
+  },
+  notificationText: {
+    color: 'red',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  todayHighPriority: {
+    backgroundColor: Colors.danger,
+    borderLeftWidth: 0, // Override the active border when showing high priority
+  },
+  todayHighPriorityText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });

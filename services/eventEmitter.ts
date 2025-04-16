@@ -1,6 +1,6 @@
 type EventCallback = (...args: any[]) => void;
 
-class EventEmitter {
+export class EventEmitter {
   private events: Record<string, EventCallback[]> = {};
 
   public on(event: string, callback: EventCallback): () => void {

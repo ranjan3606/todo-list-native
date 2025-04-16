@@ -19,7 +19,7 @@ interface TagItemProps {
   keywords: string[];
   isActive: boolean;
   colorScheme: 'light' | 'dark';
-  animValue: Animated.Value;
+  animValue?: Animated.Value; // Make animValue optional
   onPress: () => void;
   onEdit: () => void;
 }
@@ -34,6 +34,10 @@ export const TagItem = ({
   onEdit
 }: TagItemProps) => {
   const { t } = useTranslation();
+  
+  // Create a default animation value if none is provided
+  const defaultAnimValue = useRef(new Animated.Value(100)).current;
+  const safeAnimValue = animValue || defaultAnimValue;
   
   const handleDelete = async () => {
     Alert.alert(
@@ -89,19 +93,23 @@ export const TagItem = ({
           style={[
             styles.animatedTagActions,
             { 
-              transform: [{ translateX: animValue }] 
+              transform: [{ translateX: safeAnimValue }] 
             }
           ]}
         >
           <TouchableOpacity 
             onPress={onEdit} 
             style={styles.actionButton}
+            testID="edit-tag-button"
+            accessibilityRole="button"
           >
             <FontAwesome name="pencil" size={18} color={Colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={handleDelete} 
             style={styles.actionButton}
+            testID="delete-tag-button"
+            accessibilityRole="button"
           >
             <FontAwesome name="trash" size={18} color="red" />
           </TouchableOpacity>

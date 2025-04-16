@@ -1,13 +1,25 @@
 import { useCallback, useMemo } from 'react';
 import { Todo } from '@/types/todo';
-import { getTodos } from '@/services/storage';
-import { TODO_EVENTS } from '@/services/eventEmitter';
+import { getTodos, updateTodo as updateTodoInStorage } from '@/services/storage';
+import { TODO_EVENTS, todoEvents } from '@/services/eventEmitter';
 import { useEventEmitter } from './useEventEmitterHandler';
+
+/**
+ * Interface for the return value of useTodos hook
+ */
+interface UseTodosReturn {
+  todos: Todo[];
+  isLoading: boolean;
+  refresh: () => Promise<void>;
+  incompleteTodos: Todo[];
+  completedTodos: Todo[];
+  updateTodo: (id: string, updates: Partial<Todo>) => Promise<boolean>;
+}
 
 /**
  * Hook for managing todos with reactive updates
  */
-export function useTodos() {
+export function useTodos(): UseTodosReturn {
   // Function to load todos from storage
   const fetchTodos = useCallback(async () => {
     return await getTodos();
@@ -35,6 +47,26 @@ export function useTodos() {
     fetchTodos
   );
 
+  // Function to update a todo
+  const updateTodo = useCallback(async (id: string, updates: Partial<Todo>) => {
+    // Find the todo to update
+    const todoToUpdate = (todos || []).find(todo => todo.id === id);
+    if (!todoToUpdate) return false;
+    
+    // Create updated todo
+    const updatedTodo = { ...todoToUpdate, ...updates };
+    
+    // Call storage function to update
+    const success = await updateTodoInStorage(updatedTodo);
+    
+    // Emit event to trigger refresh (although the hook should pick this up automatically)
+    if (success) {
+      todoEvents.emit(TODO_EVENTS.TODO_UPDATED, updatedTodo);
+    }
+    
+    return success;
+  }, [todos]);
+
   // Derive filtered todo lists
   const incompleteTodos = useMemo(() => 
     (todos || []).filter(todo => !todo.completed), 
@@ -51,6 +83,7 @@ export function useTodos() {
     isLoading,
     refresh,
     incompleteTodos,
-    completedTodos
+    completedTodos,
+    updateTodo
   };
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { 
   Text, 
   View, 
@@ -6,7 +6,6 @@ import {
   StyleSheet, 
   Alert
 } from 'react-native';
-import { useFocusEffect } from 'expo-router';
 import { Todo } from '@/types/todo';
 import { Colors } from '@/constants/Colors';
 import { useActualColorScheme } from '@/services/theme';
@@ -16,6 +15,9 @@ import { useTodos } from '@/hooks/useTodos';
 import { useTranslation } from '@/i18n';
 import { useStableRefresh } from '@/hooks/useStableRefresh';
 import { PageLayout } from '@/components/PageLayout';
+
+// Memoized task card component for better list performance
+const MemoizedTaskCard = memo(TaskCard);
 
 export default function CompletedScreen() {
   const colorScheme = useActualColorScheme();
@@ -48,31 +50,46 @@ export default function CompletedScreen() {
     );
   };
 
+  // Memoize the renderItem function to prevent recreating it on each render
+  const renderItem = useCallback(({ item }: { item: Todo }) => (
+    <MemoizedTaskCard 
+      item={item}
+      colorScheme={colorScheme as 'light' | 'dark'}
+      onEdit={handleEditCompletedTask}
+    />
+  ), [colorScheme, handleEditCompletedTask]);
+
+  // Memoize the empty component
+  const ListEmptyComponent = useCallback(() => (
+    <View style={styles.emptyContainer}>
+      {isLoading ? (
+        <Text style={[styles.loadingText, { color: Colors[colorScheme].text }]}>
+          {t('common.loading')}
+        </Text>
+      ) : (
+        <Text style={[styles.emptyText, { color: Colors[colorScheme].lightText }]}>
+          {t('task.noCompletedTasks')}
+        </Text>
+      )}
+    </View>
+  ), [colorScheme, t, isLoading]);
+
   return (
     <PageLayout title={t('task.completedTasks')}>
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <Text>{t('common.loading')}</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={completedTodos}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
-            <TaskCard 
-              item={item}
-              colorScheme={colorScheme as 'light' | 'dark'}
-              onEdit={handleEditCompletedTask}
-            />
-          )}
-          ListEmptyComponent={
-            <Text style={[styles.emptyText, { color: Colors[colorScheme].lightText }]}>
-              {t('task.noCompletedTasks')}
-            </Text>
-          }
-        />
-      )}
+      <FlatList
+        data={completedTodos}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        renderItem={renderItem}
+        ListEmptyComponent={ListEmptyComponent}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        removeClippedSubviews={true}
+        getItemLayout={(data, index) => (
+          {length: 88, offset: 88 * index, index}
+        )}
+      />
       
       <TaskForm
         visible={formVisible}
@@ -108,5 +125,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    textAlign: 'center',
+    marginTop: 50,
+    color: '#888',
   },
 });

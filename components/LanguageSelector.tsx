@@ -16,6 +16,7 @@ export function LanguageSelector({ colorScheme }: LanguageSelectorProps) {
       {availableLanguages.map((lang) => (
         <TouchableOpacity 
           key={lang.code}
+          testID={`language-option-${lang.code}`}
           style={[
             styles.languageOption, 
             language === lang.code && styles.selectedOption,
