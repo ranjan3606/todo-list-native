@@ -26,6 +26,21 @@ jest.mock('@/utils/toastUtils', () => ({
   showToast: jest.fn(),
 }));
 
+// Mock expo-notifications to prevent warnings
+jest.mock('expo-notifications', () => ({
+  requestPermissionsAsync: jest.fn().mockResolvedValue({ granted: true }),
+  getPermissionsAsync: jest.fn().mockResolvedValue({ granted: true }),
+  scheduleNotificationAsync: jest.fn().mockResolvedValue('notification-id'),
+  cancelScheduledNotificationAsync: jest.fn().mockResolvedValue(undefined),
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  dismissAllNotificationsAsync: jest.fn(),
+  getBadgeCountAsync: jest.fn().mockResolvedValue(0),
+  setBadgeCountAsync: jest.fn().mockResolvedValue(true),
+}));
+
 jest.mock('@/constants/Tags', () => {
   const PREDEFINED_TAGS = {
     'work': ['job', 'meeting', 'project'],

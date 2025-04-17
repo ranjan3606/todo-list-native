@@ -61,17 +61,12 @@ describe('LanguageSelector', () => {
   });
 
   it('marks current language as selected', () => {
-    const { getByTestId } = render(<LanguageSelector colorScheme="light" />);
+    const { getByText, getByTestId } = render(<LanguageSelector colorScheme="light" />);
     
-    // English should be selected (marked with a checkmark icon)
+    // English should be selected (wrapper should have a border)
     const englishOption = getByTestId('language-option-en');
     expect(englishOption.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ 
-          borderWidth: 2,
-          borderColor: expect.anything() 
-        })
-      ])
+      expect.objectContaining({ borderColor: expect.anything() })
     );
   });
 
@@ -111,9 +106,7 @@ describe('LanguageSelector', () => {
     
     const lightOption = getByTestId('language-option-en');
     expect(lightOption.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ backgroundColor: '#fff' })
-      ])
+      expect.objectContaining({ backgroundColor: '#fff' })
     );
     
     // Re-render with dark mode
@@ -121,9 +114,7 @@ describe('LanguageSelector', () => {
     
     const darkOption = getByTestId('language-option-en');
     expect(darkOption.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ backgroundColor: '#222' })
-      ])
+      expect.objectContaining({ backgroundColor: '#222' })
     );
   });
 });

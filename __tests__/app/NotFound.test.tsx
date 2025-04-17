@@ -59,4 +59,9 @@ describe('NotFoundScreen', () => {
     expect(getByText('The page you are looking for doesn\'t exist or has been moved.')).toBeTruthy();
     expect(getByText('Go back home')).toBeTruthy();
   });
+  
+  it('matches snapshot', () => {
+    const { toJSON } = render(<NotFoundScreen />);
+    expect(toJSON()).toMatchSnapshot();
+  });
 });

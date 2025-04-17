@@ -27,96 +27,48 @@ exports[`DateSelector renders correctly (snapshot) 1`] = `
       }
     }
   >
-    <View
-      accessibilityState={
-        {
-          "busy": undefined,
-          "checked": undefined,
-          "disabled": undefined,
-          "expanded": undefined,
-          "selected": undefined,
-        }
-      }
-      accessibilityValue={
-        {
-          "max": undefined,
-          "min": undefined,
-          "now": undefined,
-          "text": undefined,
-        }
-      }
-      accessible={true}
-      collapsable={false}
-      focusable={true}
-      onClick={[Function]}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
+    <TouchableOpacity
+      onPress={[Function]}
       style={
-        {
-          "alignItems": "center",
-          "borderColor": "#ddd",
-          "borderRadius": 5,
-          "borderWidth": 1,
-          "flex": 1,
-          "marginHorizontal": 4,
-          "opacity": 1,
-          "padding": 10,
-        }
+        [
+          {
+            "alignItems": "center",
+            "borderColor": "#ddd",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "flex": 1,
+            "marginHorizontal": 4,
+            "padding": 10,
+          },
+          null,
+        ]
       }
     >
       <Text>
         Today
       </Text>
-    </View>
-    <View
-      accessibilityState={
-        {
-          "busy": undefined,
-          "checked": undefined,
-          "disabled": undefined,
-          "expanded": undefined,
-          "selected": undefined,
-        }
-      }
-      accessibilityValue={
-        {
-          "max": undefined,
-          "min": undefined,
-          "now": undefined,
-          "text": undefined,
-        }
-      }
-      accessible={true}
-      collapsable={false}
-      focusable={true}
-      onClick={[Function]}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
+    </TouchableOpacity>
+    <TouchableOpacity
+      onPress={[Function]}
       style={
-        {
-          "alignItems": "center",
-          "borderColor": "#ddd",
-          "borderRadius": 5,
-          "borderWidth": 1,
-          "flex": 1,
-          "marginHorizontal": 4,
-          "opacity": 1,
-          "padding": 10,
-        }
+        [
+          {
+            "alignItems": "center",
+            "borderColor": "#ddd",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "flex": 1,
+            "marginHorizontal": 4,
+            "padding": 10,
+          },
+          null,
+        ]
       }
     >
       <Text>
         Tomorrow
       </Text>
-    </View>
+    </TouchableOpacity>
   </View>
   <View
     style={
@@ -127,96 +79,48 @@ exports[`DateSelector renders correctly (snapshot) 1`] = `
       }
     }
   >
-    <View
-      accessibilityState={
-        {
-          "busy": undefined,
-          "checked": undefined,
-          "disabled": undefined,
-          "expanded": undefined,
-          "selected": undefined,
-        }
-      }
-      accessibilityValue={
-        {
-          "max": undefined,
-          "min": undefined,
-          "now": undefined,
-          "text": undefined,
-        }
-      }
-      accessible={true}
-      collapsable={false}
-      focusable={true}
-      onClick={[Function]}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
+    <TouchableOpacity
+      onPress={[Function]}
       style={
-        {
-          "alignItems": "center",
-          "borderColor": "#ddd",
-          "borderRadius": 5,
-          "borderWidth": 1,
-          "flex": 1,
-          "marginHorizontal": 4,
-          "opacity": 1,
-          "padding": 10,
-        }
+        [
+          {
+            "alignItems": "center",
+            "borderColor": "#ddd",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "flex": 1,
+            "marginHorizontal": 4,
+            "padding": 10,
+          },
+          null,
+        ]
       }
     >
       <Text>
         Day After
       </Text>
-    </View>
-    <View
-      accessibilityState={
-        {
-          "busy": undefined,
-          "checked": undefined,
-          "disabled": undefined,
-          "expanded": undefined,
-          "selected": undefined,
-        }
-      }
-      accessibilityValue={
-        {
-          "max": undefined,
-          "min": undefined,
-          "now": undefined,
-          "text": undefined,
-        }
-      }
-      accessible={true}
-      collapsable={false}
-      focusable={true}
-      onClick={[Function]}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
+    </TouchableOpacity>
+    <TouchableOpacity
+      onPress={[Function]}
       style={
-        {
-          "alignItems": "center",
-          "borderColor": "#ddd",
-          "borderRadius": 5,
-          "borderWidth": 1,
-          "flex": 1,
-          "marginHorizontal": 4,
-          "opacity": 1,
-          "padding": 10,
-        }
+        [
+          {
+            "alignItems": "center",
+            "borderColor": "#ddd",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "flex": 1,
+            "marginHorizontal": 4,
+            "padding": 10,
+          },
+          null,
+        ]
       }
     >
       <Text>
         Custom
       </Text>
-    </View>
+    </TouchableOpacity>
   </View>
 </View>
 `;

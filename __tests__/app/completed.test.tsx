@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
+// Change from named import to default import
 import CompletedScreen from '../../app/(tabs)/completed';
 
 // Mock required modules
@@ -39,11 +40,14 @@ jest.mock('@/hooks/useTodos', () => ({
   }),
 }));
 
-jest.mock('@/components/TaskCard', () => ({
-  TaskCard: jest.fn(({ item }) => (
-    <React.Fragment>Task: {item.title}</React.Fragment>
-  )),
-}));
+jest.mock('@/components/TaskCard', () => {
+  return {
+    TaskCard: jest.fn().mockImplementation(props => {
+      const mockReact = require('react');
+      return mockReact.createElement(mockReact.Fragment, null, `Task: ${props.item.title}`);
+    })
+  };
+});
 
 jest.mock('@/components/TaskForm', () => ({
   TaskForm: jest.fn(() => null),
@@ -70,20 +74,44 @@ jest.mock('@/hooks/useStableRefresh', () => ({
   useStableRefresh: jest.fn(),
 }));
 
-jest.mock('@/components/PageLayout', () => ({
-  PageLayout: jest.fn(({ children, title }) => (
-    <React.Fragment>
-      <div>HEADER: {title}</div>
-      {children}
-    </React.Fragment>
-  )),
-}));
+jest.mock('@/components/PageLayout', () => {
+  return {
+    PageLayout: jest.fn().mockImplementation(props => {
+      const mockReact = require('react');
+      const { Text, View } = require('react-native');
+      return mockReact.createElement(
+        View, 
+        null, 
+        mockReact.createElement(Text, null, `HEADER: ${props.title}`),
+        props.children
+      );
+    })
+  };
+});
 
 jest.mock('react-native/Libraries/Alert/Alert', () => ({
   alert: jest.fn(),
 }));
 
 describe('CompletedScreen', () => {
+  // Reset mocks before each test
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Helper to mock the Date object
+  const mockDateImplementation = (mockISOString = '2023-01-01T12:00:00Z') => {
+    const fixedDate = new Date(mockISOString);
+    const originalDate = global.Date;
+    global.Date = jest.fn(() => fixedDate) as any;
+    global.Date.UTC = originalDate.UTC;
+    global.Date.parse = originalDate.parse;
+    global.Date.now = jest.fn(() => fixedDate.getTime());
+    return () => {
+      global.Date = originalDate;
+    };
+  };
+
   it('renders correctly with empty completed tasks', () => {
     const { getByText } = render(<CompletedScreen />);
     
@@ -103,6 +131,8 @@ describe('CompletedScreen', () => {
   });
   
   it('renders a list of completed tasks', () => {
+    const restoreDate = mockDateImplementation();
+    
     jest.spyOn(require('@/hooks/useTodos'), 'useTodos').mockReturnValue({
       completedTodos: [
         { id: '1', title: 'Task 1', completed: true, dueDate: new Date().toISOString() },
@@ -116,5 +146,25 @@ describe('CompletedScreen', () => {
     // The important part is that the component renders without errors
     const { toJSON } = render(<CompletedScreen />);
     expect(toJSON()).toBeTruthy();
+    
+    restoreDate();
+  });
+  
+  it('matches snapshot', () => {
+    const restoreDate = mockDateImplementation();
+    
+    jest.spyOn(require('@/hooks/useTodos'), 'useTodos').mockReturnValue({
+      completedTodos: [
+        { id: '1', title: 'Task 1', completed: true, dueDate: new Date().toISOString() },
+        { id: '2', title: 'Task 2', completed: true, dueDate: new Date().toISOString() },
+      ],
+      isLoading: false,
+      refresh: jest.fn(),
+    });
+    
+    const { toJSON } = render(<CompletedScreen />);
+    expect(toJSON()).toMatchSnapshot();
+    
+    restoreDate();
   });
 });

@@ -1,14 +1,22 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, within } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
 import { SwipeableRow } from '../SwipeableRow';
 
 // Mock @expo/vector-icons to prevent native font loading issues
-jest.mock('@expo/vector-icons', () => ({
-  FontAwesome: function MockFontAwesome(props) {
-    return React.createElement(Text, { ...props, testID: `icon-${props.name}` }, props.name);
-  }
-}));
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  return {
+    FontAwesome: function MockFontAwesome(props) {
+      return React.createElement(
+        Text,
+        { ...props, testID: `icon-${props.name}` },
+        props.name
+      );
+    }
+  };
+});
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
@@ -25,21 +33,17 @@ jest.mock('react-native-gesture-handler', () => {
   const View = require('react-native').View;
   const Animated = require('react-native').Animated;
   return {
-    Swipeable: ({ renderLeftActions, renderRightActions, children }) => (
-      <View>
-        {renderLeftActions && 
-          <View testID="left-actions">
-            {renderLeftActions(new Animated.Value(1))}
-          </View>
-        }
-        <View testID="swipeable-content">{children}</View>
-        {renderRightActions && 
-          <View testID="right-actions">
-            {renderRightActions(new Animated.Value(1))}
-          </View>
-        }
-      </View>
-    ),
+    Swipeable: ({ renderLeftActions, renderRightActions, children }) => {
+      const left = renderLeftActions ? renderLeftActions(new Animated.Value(1)) : null;
+      const right = renderRightActions ? renderRightActions(new Animated.Value(1)) : null;
+      return (
+        <View>
+          {left && <View testID="left-actions">{left}</View>}
+          <View testID="swipeable-content">{children}</View>
+          {right && <View testID="right-actions">{right}</View>}
+        </View>
+      );
+    },
   };
 });
 
@@ -142,22 +146,7 @@ describe('SwipeableRow', () => {
     );
     
     const leftActions = getByTestId('left-actions');
-    expect(leftActions).toContainElement(expect.anything());
-    expect(leftActions.props.children).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          props: expect.objectContaining({
-            children: expect.arrayContaining([
-              expect.objectContaining({
-                props: expect.objectContaining({
-                  children: ['Undo']
-                })
-              })
-            ])
-          })
-        })
-      ])
-    );
+    expect(within(leftActions).getByText('Undo')).toBeTruthy();
   });
 
   it('uses ref to expose close method', () => {

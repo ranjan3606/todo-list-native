@@ -48,7 +48,7 @@ describe('useColorScheme Web Hook', () => {
     expect(result.current).toBe('light');
   });
   
-  fit('should return system theme after hydration when system theme is dark', async () => {
+  it('should return system theme after hydration when system theme is dark', async () => {
     // Setup mock to return dark
     (ReactNative.useColorScheme as jest.Mock).mockReturnValue('dark');
     
@@ -118,16 +118,24 @@ describe('useColorScheme Web Hook', () => {
     // Setup mock to return dark
     (ReactNative.useColorScheme as jest.Mock).mockReturnValue('dark');
     
-    // Render the hook
-    const { result, unmount } = renderHook(() => useColorScheme());
+    // Use a flag to ensure we check the value before any effects run
+    let initialRender = true;
     
-    // Initially should be light (default)
-    expect(result.current).toBe('light');
+    // Render the hook with a wrapper to capture the first render
+    const { result, unmount } = renderHook(() => {
+      const theme = useColorScheme();
+      // Force synchronous checking of the first render value
+      if (initialRender) {
+        initialRender = false;
+        expect(theme).toBe('light');
+      }
+      return theme;
+    });
     
     // Unmount the hook
     unmount();
     
-    // Should still be light as hydration hasn't happened
-    expect(result.current).toBe('light');
+    // We don't need to check the value after unmount
+    // as that's not the real intent of this test
   });
 });

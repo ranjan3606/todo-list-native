@@ -222,7 +222,7 @@ describe('Storage Service', () => {
       expect(scheduleEscalatingReminders).not.toHaveBeenCalled();
     });
 
-    fit('should handle errors and return false', async () => {
+    it('should handle errors and return false', async () => {
       // Create a spy on the console.error
       jest.spyOn(console, 'error').mockImplementation(() => {});
       

@@ -7,13 +7,18 @@ import { getSnoozeDuration } from '@/services/storage';
 import { showToast } from '@/utils/toastUtils';
 
 // Fix the FontAwesome mock to avoid out-of-scope variable references
-jest.mock('@expo/vector-icons', () => ({
-  FontAwesome: jest.fn().mockImplementation((props) => ({
-    type: 'FontAwesome',
-    props: {...props, testID: `icon-${props.name}`},
-    children: null
-  }))
-}));
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    FontAwesome: jest.fn().mockImplementation((props) =>
+      React.createElement(View, {
+        ...props,
+        testID: `icon-${props.name}`,
+      })
+    ),
+  };
+});
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
@@ -92,16 +97,30 @@ jest.mock('@/i18n', () => ({
 }));
 
 // Mock SwipeableRow component
-jest.mock('../SwipeableRow', () => ({
-  SwipeableRow: ({ children, onDelete, onComplete, onSnooze, isCompleted }) => (
-    <div data-testid="swipeable-row" onClick={() => onDelete()}>
-      {children}
-      <button data-testid="delete-button" onClick={onDelete}>Delete</button>
-      {onComplete && <button data-testid="complete-button" onClick={onComplete}>Complete</button>}
-      {onSnooze && <button data-testid="snooze-button" onClick={onSnooze}>Snooze</button>}
-    </div>
-  ),
-}));
+jest.mock('../SwipeableRow', () => {
+  const React = require('react');
+  const { View, TouchableOpacity, Text } = require('react-native');
+  return {
+    SwipeableRow: ({ children, onDelete, onComplete, onSnooze }) => (
+      <View testID="swipeable-row">
+        {children}
+        <TouchableOpacity testID="delete-button" onPress={onDelete}>
+          <Text>Delete</Text>
+        </TouchableOpacity>
+        {onComplete && (
+          <TouchableOpacity testID="complete-button" onPress={onComplete}>
+            <Text>Complete</Text>
+          </TouchableOpacity>
+        )}
+        {onSnooze && (
+          <TouchableOpacity testID="snooze-button" onPress={onSnooze}>
+            <Text>Snooze</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    ),
+  };
+});
 
 // Mock Alert.alert
 jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
@@ -115,13 +134,10 @@ jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
 // Fix the react-native mock to avoid similar scope issues
 jest.mock('react-native', () => {
   const rn = jest.requireActual('react-native');
-  rn.Modal = jest.fn().mockImplementation(({children, visible, ...props}) => {
+  const React = require('react');
+  rn.Modal = jest.fn().mockImplementation(({ children, visible, ...props }) => {
     if (!visible) return null;
-    return {
-      type: 'Modal',
-      props,
-      children
-    };
+    return React.createElement(rn.View, props, children);
   });
   return rn;
 });
@@ -223,13 +239,11 @@ describe('TaskCard', () => {
   });
 
   it('applies different styles for completed tasks', () => {
-    const { container } = render(
+    const { root } = render(
       <TaskCard item={mockCompletedTodo} colorScheme="light" onEdit={mockEdit} />
     );
     
-    // This test would check for completed task styles, but since React Native Testing Library
-    // doesn't expose styles directly in the container, we'll just check the component renders
-    expect(container).toBeTruthy();
+    expect(root).toBeTruthy();
   });
 
   it('handles long press to show edit options', () => {

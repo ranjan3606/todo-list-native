@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CompletedScreen matches snapshot 1`] = `
+<View>
+  <Text>
+    HEADER: Completed Tasks
+  </Text>
+  <RCTScrollView
+    ListEmptyComponent={[Function]}
+    contentContainerStyle={
+      {
+        "flexGrow": 1,
+        "paddingBottom": 20,
+      }
+    }
+    data={
+      [
+        {
+          "completed": true,
+          "dueDate": "2023-01-01T12:00:00.000Z",
+          "id": "1",
+          "title": "Task 1",
+        },
+        {
+          "completed": true,
+          "dueDate": "2023-01-01T12:00:00.000Z",
+          "id": "2",
+          "title": "Task 2",
+        },
+      ]
+    }
+    getItem={[Function]}
+    getItemCount={[Function]}
+    getItemLayout={[Function]}
+    initialNumToRender={10}
+    keyExtractor={[Function]}
+    maxToRenderPerBatch={10}
+    onContentSizeChange={[Function]}
+    onLayout={[Function]}
+    onMomentumScrollBegin={[Function]}
+    onMomentumScrollEnd={[Function]}
+    onScroll={[Function]}
+    onScrollBeginDrag={[Function]}
+    onScrollEndDrag={[Function]}
+    removeClippedSubviews={true}
+    renderItem={[Function]}
+    scrollEventThrottle={0.0001}
+    stickyHeaderIndices={[]}
+    viewabilityConfigCallbackPairs={[]}
+    windowSize={10}
+  >
+    <View>
+      <View
+        onFocusCapture={[Function]}
+        style={null}
+      >
+        Task: Task 1
+      </View>
+      <View
+        onFocusCapture={[Function]}
+        style={null}
+      >
+        Task: Task 2
+      </View>
+    </View>
+  </RCTScrollView>
+</View>
+`;

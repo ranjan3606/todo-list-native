@@ -1,6 +1,47 @@
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import { DateSelector } from '../TaskForm';
+// First, define manual mocks for React Native components
+// Note: This needs to happen before any imports that might use react-native
+jest.mock('react-native', () => ({
+  Platform: {
+    OS: 'ios',
+    select: jest.fn(obj => obj.ios || obj.default)
+  },
+  View: 'View',
+  Text: 'Text',
+  TouchableOpacity: 'TouchableOpacity',
+  Modal: function Modal({ children, visible }) { return visible ? children : null; },
+  Button: 'Button',
+  StyleSheet: {
+    create: jest.fn(styles => styles),
+    flatten: jest.fn(style => style) // Add flatten function
+  },
+  Dimensions: {
+    get: jest.fn(() => ({ width: 375, height: 812 }))
+  }
+}));
+
+// Mock expo-haptics - needed for dependencies
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(),
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+  notificationAsync: jest.fn(),
+  selectionAsync: jest.fn()
+}));
+
+// Mock expo modules
+jest.mock('expo-device', () => ({
+  isDevice: true,
+  getDeviceTypeAsync: jest.fn(() => Promise.resolve('PHONE')),
+}));
+
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'EXPO_PUSH_TOKEN' })),
+  setNotificationChannelAsync: jest.fn(() => Promise.resolve()),
+  setNotificationHandler: jest.fn(),
+  scheduleNotificationAsync: jest.fn(() => Promise.resolve()),
+}));
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -14,36 +55,41 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   multiRemove: jest.fn(() => Promise.resolve(null)),
 }));
 
-// Mock CalendarPicker component
+// Use a direct implementation for the CalendarPicker mock without referencing external React
 jest.mock('react-native-calendar-picker', () => {
-  const React = require('react');
-  const { View, Text, TouchableOpacity } = require('react-native');
-  
-  return function MockCalendarPicker(props: any) {
-    return (
-      <View testID="calendar-picker">
-        <TouchableOpacity 
-          testID="select-date-button" 
-          onPress={() => props.onDateChange(new Date('2025-05-01'))}
-        >
-          <Text>Select Date</Text>
-        </TouchableOpacity>
-      </View>
+  return jest.fn(props => {
+    // Define React locally within the mock
+    const mockReact = require('react');
+    return mockReact.createElement(
+      'View', 
+      { testID: 'calendar-picker' },
+      mockReact.createElement(
+        'TouchableOpacity',
+        { 
+          testID: 'select-date-button',
+          onPress: () => props.onDateChange(new Date('2025-05-01'))
+        },
+        mockReact.createElement('Text', null, 'Select Date')
+      )
     );
-  };
+  });
 });
 
-// Mock FontAwesome component
-jest.mock('@expo/vector-icons', () => {
-  const React = require('react');
-  const { View } = require('react-native');
-  
-  return {
-    FontAwesome: function MockFontAwesome(props: any) {
-      return <View {...props} testID={`icon-${props.name}`} />;
-    }
-  };
-});
+// Similarly for FontAwesome
+jest.mock('@expo/vector-icons', () => ({
+  FontAwesome: jest.fn(props => {
+    const mockReact = require('react');
+    return mockReact.createElement(
+      'View', 
+      { ...props, testID: `icon-${props.name}` }
+    );
+  })
+}));
+
+// Now import React after all mocks have been defined
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react-native';
+import { DateSelector } from '../TaskForm';
 
 describe('DateSelector', () => {
   const mockOnChange = jest.fn();

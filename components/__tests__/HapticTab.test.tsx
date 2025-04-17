@@ -4,6 +4,23 @@ import { HapticTab, HapticTabProps } from '../HapticTab';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 
+// Mock Platform with a mutable OS property
+jest.mock('react-native/Libraries/Utilities/Platform', () => {
+  const Platform = jest.requireActual('react-native/Libraries/Utilities/Platform');
+  return {
+    ...Platform,
+    OS: 'ios', // Default to iOS
+    select: jest.fn(obj => obj[Platform.OS] || obj.default)
+  };
+});
+
+// Mock useColorScheme
+jest.mock('react-native/Libraries/Utilities/useColorScheme', () => ({
+  __esModule: true,
+  default: jest.fn(() => 'light'),
+}));
+
+// Mock specific modules as needed
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
   setItem: jest.fn(() => Promise.resolve(null)),
@@ -61,7 +78,7 @@ describe('HapticTab', () => {
   });
 
   it('triggers haptic feedback on iOS', () => {
-    // Directly set Platform.OS instead of using spyOn
+    // Directly set Platform.OS
     Platform.OS = 'ios';
     const { getByRole } = render(<HapticTab {...defaultProps} />);
     fireEvent.press(getByRole('button'));
@@ -69,7 +86,7 @@ describe('HapticTab', () => {
   });
 
   it('does not trigger haptic feedback on Android', () => {
-    // Directly set Platform.OS instead of using spyOn
+    // Directly set Platform.OS
     Platform.OS = 'android';
     const { getByRole } = render(<HapticTab {...defaultProps} />);
     fireEvent.press(getByRole('button'));

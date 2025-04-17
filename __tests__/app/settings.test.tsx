@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import SettingsScreen from '../../app/(tabs)/settings';
 
@@ -52,19 +53,19 @@ jest.mock('@/hooks/useTags', () => ({
 }));
 
 jest.mock('@/components/ThemeSelector', () => ({
-  ThemeSelector: jest.fn(() => <React.Fragment>Theme Selector Component</React.Fragment>),
+  ThemeSelector: jest.fn(),
 }));
 
 jest.mock('@/components/LanguageSelector', () => ({
-  LanguageSelector: jest.fn(() => <React.Fragment>Language Selector Component</React.Fragment>),
+  LanguageSelector: jest.fn(),
 }));
 
 jest.mock('@/components/TagForm', () => ({
-  TagForm: jest.fn(() => null),
+  TagForm: jest.fn(),
 }));
 
 jest.mock('@/components/TagItem', () => ({
-  TagItem: jest.fn(() => <React.Fragment>Tag Item Component</React.Fragment>),
+  TagItem: jest.fn(),
 }));
 
 jest.mock('@/i18n', () => ({
@@ -96,13 +97,26 @@ jest.mock('@/hooks/useStableRefresh', () => ({
 }));
 
 jest.mock('@/components/PageLayout', () => ({
-  PageLayout: jest.fn(({ children, title }) => (
-    <React.Fragment>
-      <div>HEADER: {title}</div>
-      {children}
-    </React.Fragment>
-  )),
+  PageLayout: jest.fn(),
 }));
+
+// After all imports and mocks, implement the components with JSX
+const { ThemeSelector } = require('@/components/ThemeSelector');
+ThemeSelector.mockImplementation(() => <Text>Theme Selector Component</Text>);
+
+const { LanguageSelector } = require('@/components/LanguageSelector');
+LanguageSelector.mockImplementation(() => <Text>Language Selector Component</Text>);
+
+const { TagItem } = require('@/components/TagItem');
+TagItem.mockImplementation(() => <Text>Tag Item Component</Text>);
+
+const { PageLayout } = require('@/components/PageLayout');
+PageLayout.mockImplementation(({ children, title }) => (
+  <React.Fragment>
+    <Text>{`HEADER: ${title}`}</Text>
+    {children}
+  </React.Fragment>
+));
 
 describe('SettingsScreen', () => {
   beforeEach(() => {
@@ -143,5 +157,10 @@ describe('SettingsScreen', () => {
     // because of the mocked TagItem component
     const { toJSON } = render(<SettingsScreen />);
     expect(toJSON()).toBeTruthy();
+  });
+
+  it('matches snapshot', () => {
+    const { toJSON } = render(<SettingsScreen />);
+    expect(toJSON()).toMatchSnapshot();
   });
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
+import { Text } from 'react-native';
 import HomeScreen from '../../app/(tabs)/index';
 
 // Mock required modules
@@ -49,14 +50,13 @@ jest.mock('@/utils/dateUtils', () => ({
   }),
 }));
 
+// Create simple mocks first
 jest.mock('@/components/TaskCard', () => ({
-  TaskCard: jest.fn(({ item }) => (
-    <React.Fragment>Task: {item.title}</React.Fragment>
-  )),
+  TaskCard: jest.fn(),
 }));
 
 jest.mock('@/components/TaskForm', () => ({
-  TaskForm: jest.fn(() => null),
+  TaskForm: jest.fn(),
 }));
 
 jest.mock('@/i18n', () => ({
@@ -82,13 +82,25 @@ jest.mock('@/hooks/useStableRefresh', () => ({
 }));
 
 jest.mock('@/components/PageLayout', () => ({
-  PageLayout: jest.fn(({ children, title }) => (
-    <React.Fragment>
-      <div>HEADER: {title}</div>
-      {children}
-    </React.Fragment>
-  )),
+  PageLayout: jest.fn(),
 }));
+
+// Implement the mock behaviors after the mocks are created
+const { TaskCard } = require('@/components/TaskCard');
+TaskCard.mockImplementation(({ item }) => (
+  <React.Fragment>Task: {item.title}</React.Fragment>
+));
+
+const { TaskForm } = require('@/components/TaskForm');
+TaskForm.mockImplementation(() => null);
+
+const { PageLayout } = require('@/components/PageLayout');
+PageLayout.mockImplementation(({ children, title }) => (
+  <React.Fragment>
+    <Text>{`HEADER: ${title}`}</Text>
+    {children}
+  </React.Fragment>
+));
 
 describe('HomeScreen', () => {
   it('renders correctly with empty task lists', () => {
@@ -124,5 +136,10 @@ describe('HomeScreen', () => {
     // Now Upcoming section should be active
     expect(queryByText('No tasks for tomorrow')).toBeNull();
     expect(getByText('No upcoming tasks')).toBeTruthy();
+  });
+  
+  it('matches snapshot', () => {
+    const { toJSON } = render(<HomeScreen />);
+    expect(toJSON()).toMatchSnapshot();
   });
 });

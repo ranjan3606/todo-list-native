@@ -1,0 +1,341 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TaskCard renders correctly (snapshot) 1`] = `
+<View
+  testID="swipeable-row"
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "backgroundColor": "#fff",
+        "borderBottomColor": "#eee",
+        "borderBottomWidth": 1,
+        "borderRadius": 5,
+        "opacity": 1,
+        "padding": 15,
+      }
+    }
+    testID="task-card"
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "flex": 1,
+          "flexDirection": "row",
+          "marginRight": 10,
+        }
+      }
+    >
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "opacity": 1,
+            "paddingRight": 10,
+          }
+        }
+        testID="completion-checkbox"
+      >
+        <View
+          color="#ccc"
+          name="circle-o"
+          size={24}
+          testID="icon-circle-o"
+        />
+      </View>
+      <View
+        style={
+          {
+            "flex": 1,
+          }
+        }
+      >
+        <Text
+          style={
+            [
+              {
+                "fontSize": 18,
+                "fontWeight": "bold",
+              },
+              {
+                "color": "#000",
+              },
+              false,
+              false,
+            ]
+          }
+        >
+          Test Task
+        </Text>
+        <Text
+          style={
+            [
+              {
+                "marginTop": 5,
+              },
+              {
+                "color": "#777",
+              },
+              false,
+            ]
+          }
+        >
+          Task description
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "flexWrap": "wrap",
+              "marginTop": 3,
+            }
+          }
+        >
+          <Text
+            style={
+              [
+                {
+                  "marginTop": 5,
+                },
+                {
+                  "color": "#777",
+                },
+                false,
+              ]
+            }
+          >
+            task.due
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "flexWrap": "wrap",
+              "marginTop": 5,
+            }
+          }
+          testID="tags-container"
+        >
+          <Text
+            style={
+              [
+                {
+                  "borderRadius": 8,
+                  "fontSize": 11,
+                  "marginBottom": 3,
+                  "marginRight": 5,
+                  "paddingHorizontal": 6,
+                  "paddingVertical": 2,
+                },
+                {
+                  "backgroundColor": "undefined15",
+                  "color": undefined,
+                  "opacity": 1,
+                },
+                false,
+              ]
+            }
+          >
+            work
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "borderRadius": 8,
+                  "fontSize": 11,
+                  "marginBottom": 3,
+                  "marginRight": 5,
+                  "paddingHorizontal": 6,
+                  "paddingVertical": 2,
+                },
+                {
+                  "backgroundColor": "undefined15",
+                  "color": undefined,
+                  "opacity": 1,
+                },
+                false,
+              ]
+            }
+          >
+            important
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "opacity": 1,
+      }
+    }
+    testID="delete-button"
+  >
+    <Text>
+      Delete
+    </Text>
+  </View>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "opacity": 1,
+      }
+    }
+    testID="complete-button"
+  >
+    <Text>
+      Complete
+    </Text>
+  </View>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "opacity": 1,
+      }
+    }
+    testID="snooze-button"
+  >
+    <Text>
+      Snooze
+    </Text>
+  </View>
+</View>
+`;

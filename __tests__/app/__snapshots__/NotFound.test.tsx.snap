@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotFoundScreen matches snapshot 1`] = `
+<View
+  style={
+    [
+      {
+        "alignItems": "center",
+        "flex": 1,
+        "justifyContent": "center",
+        "padding": 20,
+      },
+      {
+        "backgroundColor": "#fff",
+      },
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "marginBottom": 20,
+      }
+    }
+  >
+    <FontAwesome
+      color="#f0ad4e"
+      name="exclamation-triangle"
+      size={64}
+    />
+  </View>
+  <Text
+    style={
+      [
+        {
+          "fontSize": 20,
+          "fontWeight": "bold",
+          "marginBottom": 10,
+        },
+        {
+          "color": "#000",
+        },
+      ]
+    }
+  >
+    Page Not Found
+  </Text>
+  <Text
+    style={
+      [
+        {
+          "marginBottom": 20,
+          "textAlign": "center",
+        },
+        {
+          "color": "#666",
+        },
+      ]
+    }
+  >
+    The page you are looking for doesn't exist or has been moved.
+  </Text>
+  <Text
+    style={
+      [
+        {
+          "fontSize": 16,
+          "fontWeight": "500",
+        },
+        {
+          "color": "#007AFF",
+        },
+      ]
+    }
+  >
+    Go back home
+  </Text>
+</View>
+`;

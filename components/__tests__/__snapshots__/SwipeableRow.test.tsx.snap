@@ -1,0 +1,123 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SwipeableRow renders correctly (snapshot) 1`] = `
+<View
+  style={
+    [
+      {
+        "backgroundColor": "white",
+      },
+      {
+        "backgroundColor": "#fff",
+      },
+    ]
+  }
+>
+  <View>
+    <View
+      testID="swipeable-content"
+    >
+      <Text>
+        Content
+      </Text>
+    </View>
+    <View
+      testID="right-actions"
+    >
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "width": 80,
+          }
+        }
+      >
+        <View
+          collapsable={false}
+          style={
+            {
+              "flex": 1,
+              "transform": [
+                {
+                  "translateX": 0,
+                },
+              ],
+            }
+          }
+        >
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              [
+                {
+                  "alignItems": "center",
+                  "flex": 1,
+                  "flexDirection": "row",
+                  "justifyContent": "center",
+                },
+                {
+                  "backgroundColor": "red",
+                },
+                false,
+              ]
+            }
+          >
+            <Text
+              color="white"
+              name="trash"
+              size={20}
+              style={
+                {
+                  "marginRight": 8,
+                }
+              }
+              testID="icon-trash"
+            >
+              trash
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "white",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                }
+              }
+            >
+              Delete
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  </View>
+</View>
+`;

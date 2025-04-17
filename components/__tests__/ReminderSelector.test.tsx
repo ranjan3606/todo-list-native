@@ -128,7 +128,7 @@ describe('ReminderSelector', () => {
     expect(getByText('Select Custom Time')).toBeTruthy();
   });
 
-  fit('calls notification API when time is selected', () => {
+  it('calls notification API when time is selected', () => {
     const { getByText } = render(<ReminderSelector {...{...defaultProps, enabled: true}} />);
     
     // Select a time

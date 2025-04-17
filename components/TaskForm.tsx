@@ -17,6 +17,7 @@ import { Todo } from '@/types/todo';
 import { PREDEFINED_TAGS, ALL_TAG_NAMES } from '@/constants/Tags';
 import { addTodo, updateTodo } from '@/services/storage';
 import { showToast } from '../utils/toastUtils';
+import * as Notifications from 'expo-notifications';
 
 // DateSelector Component
 export interface DateSelectorProps {
@@ -165,9 +166,18 @@ export const ReminderSelector = ({ enabled, onToggle, reminderTime, onTimeChange
     onToggle(value);
   };
 
-  const selectPresetTime = (hours: number) => {
+  const selectPresetTime = async (hours: number) => {
     const time = `${hours.toString().padStart(2, '0')}:00`;
     onTimeChange(time);
+    // schedule notification whenever a preset is picked
+    await Notifications.scheduleNotificationAsync({
+      content: { body: `You'll be reminded at ${time}` },
+      trigger: {
+        hour: Number(time.split(':')[0]),
+        minute: Number(time.split(':')[1]),
+        repeats: true
+      }
+    });
   };
 
   const handleCustomTime = () => {
