@@ -18,7 +18,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.yourcompany.todoapp",
-      "versionCode": 2,
+      "versionCode": 6,
       "proguard": "./proguard-rules.pro"
     },
     "web": {
