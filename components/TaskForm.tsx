@@ -447,21 +447,54 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     }
   }, [visible, initialTask]);
 
-  // Tag Auto-Suggestion Effect
+  // Tag Auto-Suggestion Effect - Enhanced for better tag recognition
   useEffect(() => {
-    const suggestedTags: string[] = [];
-    const lowerCaseName = name.toLowerCase();
+    if (!name) return;
     
+    const lowerCaseName = name.toLowerCase();
+    const suggestedTags: string[] = [];
+    
+    // Better tag detection logic
     for (const tagName in PREDEFINED_TAGS) {
-      if (PREDEFINED_TAGS[tagName].some(keyword => lowerCaseName.includes(keyword))) {
-        if (!tags.includes(tagName)) {
+      const keywords = PREDEFINED_TAGS[tagName];
+      // Check if any keyword is present in the task name
+      if (keywords.some(keyword => {
+        // Match whole words or hashtags
+        const keywordRegex = new RegExp(`\\b${keyword}\\b|#${keyword}`, 'i');
+        return keywordRegex.test(lowerCaseName);
+      })) {
+        if (!suggestedTags.includes(tagName)) {
           suggestedTags.push(tagName);
         }
       }
     }
     
+    // Handle hashtags in the task name (e.g., #work, #home)
+    const hashtagRegex = /#(\w+)/g;
+    let match;
+    while ((match = hashtagRegex.exec(lowerCaseName)) !== null) {
+      const hashtagWithoutHash = match[1].toLowerCase();
+      // Check if hashtag matches a predefined tag
+      const matchedTag = ALL_TAG_NAMES.find(tag => 
+        tag.toLowerCase() === hashtagWithoutHash ||
+        PREDEFINED_TAGS[tag]?.includes(hashtagWithoutHash)
+      );
+      
+      if (matchedTag && !suggestedTags.includes(matchedTag)) {
+        suggestedTags.push(matchedTag);
+      }
+    }
+    
+    // Update tags if we found any suggestions
     if (suggestedTags.length > 0) {
-      setTags(prevTags => [...new Set([...prevTags, ...suggestedTags])]);
+      setTags(prevTags => {
+        const updatedTags = [...new Set([...prevTags, ...suggestedTags])];
+        // Show tag suggestions to the user with a small delay
+        setTimeout(() => {
+          setShowAdvanced(true); // Automatically open the advanced section to show selected tags
+        }, 300);
+        return updatedTags;
+      });
     }
   }, [name]);
 

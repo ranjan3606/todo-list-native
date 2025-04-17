@@ -22,6 +22,7 @@ interface TagItemProps {
   animValue?: Animated.Value; // Make animValue optional
   onPress: () => void;
   onEdit: () => void;
+  onDelete: () => void; // Added onDelete prop for delete action
 }
 
 export const TagItem = ({
@@ -31,44 +32,14 @@ export const TagItem = ({
   colorScheme,
   animValue,
   onPress,
-  onEdit
+  onEdit,
+  onDelete
 }: TagItemProps) => {
   const { t } = useTranslation();
   
   // Create a default animation value if none is provided
   const defaultAnimValue = useRef(new Animated.Value(100)).current;
   const safeAnimValue = animValue || defaultAnimValue;
-  
-  const handleDelete = async () => {
-    Alert.alert(
-      t('tags.deleteTag'),
-      t('tags.deleteConfirm', { name: tagName }),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // Get current tags
-              const currentTags = await getTags();
-              // Create a new object without the deleted tag
-              const { [tagName]: removed, ...updatedTags } = currentTags;
-              
-              // Save updated tags
-              await saveTags(updatedTags);
-              
-              // Emit tag deleted event
-              todoEvents.emit(TODO_EVENTS.TAG_DELETED, { name: tagName });
-            } catch (error) {
-              console.error('Error deleting tag:', error);
-              Alert.alert(t('common.error'), t('tags.deleteError'));
-            }
-          }
-        }
-      ]
-    );
-  };
   
   return (
     <View style={[styles.tagItem, { backgroundColor: Colors[colorScheme].cardBackground }]}>
@@ -98,7 +69,10 @@ export const TagItem = ({
           ]}
         >
           <TouchableOpacity 
-            onPress={onEdit} 
+            onPress={(e) => {
+              e.stopPropagation(); // Stop event from bubbling up to parent
+              onEdit();
+            }} 
             style={styles.actionButton}
             testID="edit-tag-button"
             accessibilityRole="button"
@@ -106,7 +80,7 @@ export const TagItem = ({
             <FontAwesome name="pencil" size={18} color={Colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={handleDelete} 
+            onPress={() => onDelete()} 
             style={styles.actionButton}
             testID="delete-tag-button"
             accessibilityRole="button"

@@ -10,7 +10,7 @@ import {
   FlatList
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { getSnoozeDuration, saveSnoozeDuration } from '@/services/storage';
+import { getSnoozeDuration, saveSnoozeDuration, getTags, saveTags } from '@/services/storage';
 import { Colors } from '@/constants/Colors';
 import { useActualColorScheme, useThemePreference, saveThemePreference } from '@/services/theme';
 import { TagItem } from '@/components/TagItem';
@@ -21,6 +21,7 @@ import { useTags } from '@/hooks/useTags';
 import { useTranslation } from '@/i18n';
 import { useStableRefresh } from '@/hooks/useStableRefresh';
 import { PageLayout } from '@/components/PageLayout';
+import { todoEvents, TODO_EVENTS } from '@/services/eventEmitter';
 
 // Create a memoized version of TagItem
 const MemoizedTagItem = memo(TagItem);
@@ -72,6 +73,31 @@ export default function SettingsScreen() {
     setModalVisible(true);
   };
 
+  const handleDelete = async (tagName: string) => {
+    Alert.alert(
+      t('tags.deleteTag'),
+      t('tags.deleteConfirm', { name: tagName }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const currentTags = await getTags();
+              const { [tagName]: removed, ...updatedTags } = currentTags;
+              await saveTags(updatedTags);
+              todoEvents.emit(TODO_EVENTS.TAG_DELETED, { name: tagName });
+            } catch (error) {
+              console.error('Error deleting tag:', error);
+              Alert.alert(t('common.error'), t('tags.deleteError'));
+            }
+          }
+        }
+      ]
+    );
+  };
+
   // Handle tag modal save
   const handleTagModalSave = () => {
     setNewTagCategory('');
@@ -110,6 +136,7 @@ export default function SettingsScreen() {
       animValue={slideAnim[tagName]}
       onPress={() => handleTagPress(tagName)}
       onEdit={() => openEditTagModal(tagName)}
+      onDelete={() => handleDelete(tagName)}
     />
   ), [tags, activeTag, colorScheme, slideAnim, handleTagPress]);
 
