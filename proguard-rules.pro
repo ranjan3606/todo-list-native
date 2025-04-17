@@ -54,3 +54,4 @@
 
 # AsyncStorage rules
 -keep class com.reactnativecommunity.asyncstorage.** { *; }
+
